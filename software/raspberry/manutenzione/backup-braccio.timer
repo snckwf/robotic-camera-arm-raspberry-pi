@@ -1,0 +1,9 @@
+[Unit]
+Description=Copia giornaliera delle impostazioni del braccio (al primo avvio)
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=6h
+OnCalendar=daily
+Persistent=true
+[Install]
+WantedBy=timers.target

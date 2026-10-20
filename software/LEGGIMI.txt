@@ -1,0 +1,92 @@
+BRACCIO ROBOTICO PER LA TELECAMERA DEL BANCO - SOFTWARE (OPZIONALE)
+=====================================================================
+Articolo completo: https://www.emgi.it/2026/10/19/braccio-robotico-telecamera-raspberry-pi-stampato-3d/
+
+Il modo piu' semplice per installare tutto e' farsi guidare da Claude (claude.ai o Claude Desktop):
+allegagli questo zip, o i singoli file, e chiedigli le procedure un passo alla volta. Esempi:
+  - "Ho un Raspberry Pi 4 con Raspberry Pi OS: aiutami a installare CamUI e questo software, un passo alla volta."
+  - "Aiutami a fare il collaudo del braccio: un giunto alla volta, con domande semplici."
+  - "Spiegami come creare una chiave SSH sul mio PC e autorizzarla sul Raspberry."
+  - "Collega il server MCP del braccio al mio Claude Desktop."
+  - "Imposta il backup giornaliero sul mio NAS."
+  - "Installa go2rtc e collega la camera del braccio a Home Assistant."
+  - "Ho montato la PCA9685: adatta braccio_web.py per pilotare i servo da li'."
+Claude legge i file, ti dice cosa scrivere e controlla con te il risultato.
+
+COSA C'E'
+---------
+raspberry/opt/braccio/braccio_web.py   server web + controllo motori (porta 8091), solo Python 3
+raspberry/opt/braccio/ui/index.html    la pagina web
+raspberry/opt/braccio/console_lcd.py   console (Arduino Nano via USB) + display LCD 16x2 I2C (porta 8092)
+raspberry/systemd/*.service            avvio automatico: braccio-web, console-lcd, camui, go2rtc
+raspberry/go2rtc/go2rtc.yaml           go2rtc: converte il video di CamUI in H.264 (encoder hardware del Pi)
+                                       pagina http://IP_DEL_PI:1984 - RTSP rtsp://IP_DEL_PI:8554/braccio
+                                       serve anche alla registrazione video della pagina del braccio
+raspberry/braccio_mcp/mcp_braccio.py   server MCP per Claude (solo libreria standard)
+raspberry/braccio_mcp/mcp.json         giunti bloccati per Claude, es. {"bloccati": ["spalla","gomito"]}
+raspberry/manutenzione/                backup giornaliero (locale + NAS), watchdog e
+                                       aggiornamenti di sicurezza automatici (cartella aggiornamenti/)
+arduino/console_braccio/               sketch dell'Arduino Nano della console
+claude_desktop/                        esempio di configurazione di Claude Desktop
+
+COSA SOSTITUIRE (segnaposto in MAIUSCOLO)
+-----------------------------------------
+TUO_UTENTE              l'utente del Raspberry (quello con cui entri in SSH, es. pi)
+IP_DEL_PI               l'indirizzo IP del Raspberry (meglio fisso, impostato nel router)
+TUO_UTENTE_WINDOWS      il tuo utente di Windows (cartella C:\Users\...)
+IP_DEL_NAS              IP del NAS per la copia dei backup (se non hai un NAS, ignora la parte NAS)
+NOME_CONDIVISIONE       cartella condivisa del NAS (es. Backup)
+NOME_CARTELLA_SUL_NAS   sottocartella dentro la condivisione
+UTENTE_DEL_NAS / PASSWORD_DEL_NAS   solo nel file /etc/braccio-nas.cred sul Pi (chmod 600, proprietario root).
+                        Le password scrivile tu: non metterle negli script e non incollarle in chat.
+
+DOVE VA OGNI FILE SUL RASPBERRY
+-------------------------------
+/opt/braccio/                        braccio_web.py, console_lcd.py, ui/index.html
+/home/TUO_UTENTE/braccio_mcp/        mcp_braccio.py, mcp.json
+/etc/systemd/system/                 i file .service e .timer
+/usr/local/bin/backup-braccio.sh     (chmod 755)
+/etc/systemd/system.conf.d/watchdog.conf
+/etc/go2rtc/go2rtc.yaml              + programma go2rtc in /usr/local/bin/go2rtc (versione linux_arm64 da
+                                       https://github.com/AlexxIT/go2rtc/releases)
+/etc/apt/apt.conf.d/                 20auto-upgrades e 52braccio-unattended (dopo: sudo apt install unattended-upgrades)
+
+PACCHETTI (Raspberry Pi OS Bookworm o successivo)
+------------------------------------------------
+sudo apt install -y git python3-flask python3-picamera2 python3-pil python3-lgpio python3-spidev \
+                    python3-serial python3-smbus2 i2c-tools smbclient ffmpeg unattended-upgrades
+Abilita I2C e SPI (sudo raspi-config -> Interface Options).
+
+/boot/firmware/config.txt (in fondo, sezione [all]):
+  dtoverlay=pwm-2chan,pin=12,func=4,pin2=13,func2=4
+  dtparam=spi=on
+  core_freq=500
+  core_freq_min=500
+(core_freq fisso serve all'anello LED su SPI; pwm-2chan ai servo su GPIO12/13.)
+
+ATTENZIONE - PILOTAGGIO SERVO
+-----------------------------
+Questo braccio_web.py pilota ancora i servo direttamente dai GPIO del Pi:
+  spalla GPIO12, gomito GPIO13 (PWM hardware), tilt GPIO5, rotazione GPIO6 (PWM software).
+Lo schema dei collegamenti dell'articolo usa la scheda PCA9685, che elimina i tremolii dei servo.
+Se usi la PCA9685 (canali CH0-CH3 come nello schema), chiedi a Claude di adattare il driver dei servo.
+Usa servo MG996R da 180 gradi, NON quelli a rotazione continua (360).
+
+VIDEO
+-----
+Risoluzione del video consigliata 1640x1232 (pagina del braccio -> Immagine -> Video): a 3280x2464 la codifica
+JPEG di CamUI occupa tutti e 4 i core del Pi 4. Le foto restano comunque a 8 MP con "Alta qualita'".
+La registrazione (pulsante Registra, o strumento "registra" per Claude) salva MP4 in /opt/braccio/dati/video:
+prende il video da go2rtc senza ricodificarlo, quindi go2rtc deve essere attivo. I video non vanno nel backup.
+
+COLLAUDO
+--------
+Dopo l'installazione apri http://IP_DEL_PI:8091 -> sezione Taratura: per ogni servo imposta zero, verso e
+limiti con piccoli movimenti. Prima di tutto premi "Home base" per azzerare la base con il sensore Hall.
+Tieni a portata di mano l'interruttore: il tasto STOP (o Esc) ferma tutto.
+
+SICUREZZA
+---------
+L'accesso SSH di Claude con sudo senza password da' pieno controllo del Raspberry: usa una chiave dedicata,
+non condividerla, e toglila quando non serve (cancella il file in /etc/sudoers.d/ e la riga in
+~/.ssh/authorized_keys). Il server MCP rispetta i giunti elencati in mcp.json come "bloccati".
