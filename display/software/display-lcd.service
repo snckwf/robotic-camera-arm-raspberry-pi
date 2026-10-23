@@ -1,0 +1,13 @@
+[Unit]
+Description=Display LCD 16x2 del braccio telecamera (porta 8092)
+After=network-online.target braccio-web.service
+Wants=braccio-web.service
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/braccio/display_lcd.py
+Restart=always
+RestartSec=3
+User=root
+
+[Install]
+WantedBy=multi-user.target
