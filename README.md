@@ -6,7 +6,7 @@
 >
 > Altri progetti di elettronica, Arduino, ESP32, Home Assistant e stampa 3D su **[www.emgi.it](https://www.emgi.it)**
 
-![Braccio robotico da banco stampato in 3D con telecamera](immagini/cover-braccio-robotico.png)
+![Braccio robotico da banco stampato in 3D con telecamera](immagini/copertina-3d.jpg)
 
 Un **braccio a cinque assi** stampato in PETG che muove la camera da 8 MP di un **Raspberry Pi 4** sul banco di lavoro. Si comanda da una **pagina web** o da **Claude AI**, che tramite un server MCP può inquadrare il banco, guardare le foto e registrare video. Due aggiunte sono opzionali: un **display LCD 16×2** di stato e un **controller con due joystick**.
 
