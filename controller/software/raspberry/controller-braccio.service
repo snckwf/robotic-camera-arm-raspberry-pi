@@ -1,5 +1,5 @@
 [Unit]
-Description=Controller remoto del braccio telecamera (Arduino Nano via USB)
+Description=Camera arm remote controller (Arduino Nano over USB)
 After=network-online.target braccio-web.service
 Wants=braccio-web.service
 

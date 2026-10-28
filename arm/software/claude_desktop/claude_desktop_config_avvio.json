@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "braccio": {
+      "command": "C:\\Users\\YOUR_WINDOWS_USER\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+      "args": [
+        "-u",
+        "C:\\YOUR_FOLDER\\avvio_braccio.py"
+      ]
+    }
+  }
+}

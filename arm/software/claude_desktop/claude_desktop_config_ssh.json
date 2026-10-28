@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "braccio": {
+      "command": "C:\\Windows\\System32\\OpenSSH\\ssh.exe",
+      "args": [
+        "-i",
+        "C:\\Users\\YOUR_WINDOWS_USER\\.ssh\\id_ed25519_pi",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=10",
+        "-o",
+        "ServerAliveInterval=30",
+        "YOUR_USER@PI_IP",
+        "python3 /home/YOUR_USER/braccio_mcp/mcp_braccio.py"
+      ]
+    }
+  }
+}

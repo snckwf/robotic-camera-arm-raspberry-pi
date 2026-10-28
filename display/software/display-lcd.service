@@ -1,5 +1,5 @@
 [Unit]
-Description=Display LCD 16x2 del braccio telecamera (porta 8092)
+Description=Camera arm 16x2 LCD display (port 8092)
 After=network-online.target braccio-web.service
 Wants=braccio-web.service
 

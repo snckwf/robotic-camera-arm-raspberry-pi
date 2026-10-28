@@ -1,56 +1,58 @@
-# Braccio robotico da banco stampato in 3D con telecamera, con Raspberry Pi 4 e controllo da Claude AI
+# 3D-printed bench robotic arm with camera, Raspberry Pi 4 and Claude AI control
 
-> 📖 **Articoli completi con spiegazioni passo passo:**  
-> **[Braccio robotico da banco con telecamera, Raspberry Pi 4 e Claude AI - www.emgi.it](https://www.emgi.it/2026/10/19/braccio-robotico-telecamera-raspberry-pi-stampato-3d/)** (braccio e opzione display)  
-> **[Controller con joystick per il braccio robotico - www.emgi.it](https://www.emgi.it/2026/10/23/controller-joystick-braccio-robotico-arduino-nano/)** (opzione controller)
+> 📖 **Full articles with step-by-step explanations (in Italian):**  
+> **[Bench robotic arm with camera, Raspberry Pi 4 and Claude AI - www.emgi.it](https://www.emgi.it/2026/10/19/braccio-robotico-telecamera-raspberry-pi-stampato-3d/)** (arm and display option)  
+> **[Joystick controller for the robotic arm - www.emgi.it](https://www.emgi.it/2026/10/23/controller-joystick-braccio-robotico-arduino-nano/)** (controller option)
 >
-> Altri progetti di elettronica, Arduino, ESP32, Home Assistant e stampa 3D su **[www.emgi.it](https://www.emgi.it)**
+> More electronics, Arduino, ESP32, Home Assistant and 3D printing projects at **[www.emgi.it](https://www.emgi.it)**
 
-![Braccio robotico da banco stampato in 3D con telecamera](immagini/copertina-3d.jpg)
+![3D-printed bench robotic arm with camera](images/cover-3d.jpg)
 
-Un **braccio a cinque assi** stampato in PETG che muove la camera da 8 MP di un **Raspberry Pi 4** sul banco di lavoro. Si comanda da una **pagina web** o da **Claude AI**, che tramite un server MCP può inquadrare il banco, guardare le foto e registrare video. Due aggiunte sono opzionali: un **display LCD 16×2** di stato e un **controller con due joystick**.
+A **five-axis arm** printed in PETG that moves the 8 MP camera of a **Raspberry Pi 4** over the workbench. It is controlled from a **web page** or by **Claude AI**, which through an MCP server can frame the bench, look at the photos and record videos. Two add-ons are optional: a **16×2 LCD** status display and a **controller with two joysticks**.
 
-## Le tre parti
+## The three parts
 
-| Cartella | Cosa contiene | Serve? |
+| Folder | What it contains | Needed? |
 |---|---|---|
-| [`braccio/`](braccio/) | Braccio, scatola dell'elettronica, software del Raspberry (pagina web, server MCP per Claude, go2rtc, manutenzione) | **sì** |
-| [`display/`](display/) | Display LCD 16×2 I2C con traslatore BSS138, scatolina stampata, programma `display_lcd.py` | opzionale |
-| [`controller/`](controller/) | Console con Arduino Nano, 2 joystick KY-023 e 4 pulsanti, collegata al Pi via USB | opzionale |
+| [`arm/`](arm/) | Arm, electronics box, Raspberry software (web page, MCP server for Claude, go2rtc, maintenance) | **yes** |
+| [`display/`](display/) | 16×2 I2C LCD display with BSS138 level shifter, printed box, `display_lcd.py` program | optional |
+| [`controller/`](controller/) | Console with Arduino Nano, 2 KY-023 joysticks and 4 buttons, connected to the Pi over USB | optional |
 
-Ogni cartella ha il suo README con componenti, **collegamenti elettrici**, STL, sorgenti OpenSCAD, software, guida di montaggio (pagina HTML) e schema dei collegamenti.
+Each folder has its own README with components, **wiring**, STL files, OpenSCAD sources, software, assembly guide (HTML page) and wiring diagram.
 
-## Cosa fa
+## What it does
 
-- **cinque movimenti**: base rotante (passo-passo 28BYJ-48 con azzeramento a sensore Hall), spalla e gomito (MG996R 180°), tilt e rotazione della camera (MG90S)
-- **servo pilotati dalla PCA9685** in I2C: niente tremolii
-- **video live nel browser** con comandi a frecce, zoom digitale ×8, **foto** fino a 8 MP, **registrazione video** MP4
-- **anello di 24 LED WS2812B** attorno all'obiettivo
-- **posizioni salvate** e pagina di **taratura**
-- **server MCP per Claude**: stato, movimenti, luce, foto, video, posizioni, messaggi sul display; giunti bloccabili
-- **go2rtc**: video H.264 con l'encoder hardware del Pi, RTSP per VLC e Home Assistant
-- **manutenzione**: watchdog, backup giornaliero (locale + NAS), aggiornamenti di sicurezza automatici
+- **five movements**: rotating base (28BYJ-48 stepper with Hall sensor homing), shoulder and elbow (MG996R 180°), camera tilt and rotation (MG90S)
+- **servos driven by the PCA9685** over I2C: no jitter
+- **live video in the browser** with arrow controls, ×8 digital zoom, **photos** up to 8 MP, MP4 **video recording**
+- **24 WS2812B LED ring** around the lens
+- **saved positions** and **calibration** page
+- **MCP server for Claude**: status, movements, light, photos, videos, positions, messages on the display; lockable joints
+- **go2rtc**: H.264 video with the Pi hardware encoder, RTSP for VLC and Home Assistant
+- **maintenance**: watchdog, daily backup (local + NAS), automatic security updates
 
-## Come si comincia
+## Getting started
 
-1. Stampa e monta il braccio con la guida in [`braccio/documentazione/`](braccio/documentazione/) (scaricala e aprila nel browser).
-2. Collega l'elettronica secondo lo schema e installa il software: [`braccio/software/LEGGIMI.txt`](braccio/software/LEGGIMI.txt).
-3. Se vuoi, aggiungi il display e/o il controller.
+1. Print and assemble the arm with the guide in [`arm/docs/`](arm/docs/) (download it and open it in the browser).
+2. Wire the electronics following the diagram and install the software: [`arm/software/README.txt`](arm/software/README.txt).
+3. If you like, add the display and/or the controller.
 
-💡 **Non serve saper programmare: chiedi a Claude.** Allega i file a una chat con Claude e chiedigli le procedure un passo alla volta: installazione, collaudo, chiave SSH, collegamento MCP, backup sul NAS, go2rtc e Home Assistant. I dati personali sono stati sostituiti da **segnaposto in maiuscolo** (`TUO_UTENTE`, `IP_DEL_PI`, `TUO_UTENTE_WINDOWS`, dati del NAS).
+💡 **You don't need to know how to program: ask Claude.** Attach the files to a chat with Claude and ask for the procedures one step at a time: installation, testing, SSH key, MCP connection, NAS backup, go2rtc and Home Assistant. Personal data has been replaced by **UPPERCASE placeholders** (`YOUR_USER`, `PI_IP`, `YOUR_WINDOWS_USER`, NAS data).
 
-Costo indicativo del braccio **120-150 €**: dipende da dove si compra (Amazon, oppure AliExpress con dazi sugli ordini singoli o senza dazi con le offerte a pacchetto).
+> The software runs on the author's arm with Italian names for files, API paths, configuration keys and MCP tools (e.g. `spalla` = shoulder, `gomito` = elbow, `rotazione` = rotation, `luce` = light); comments, documentation and on-screen texts are in English.
 
-## Crediti
+Approximate cost of the arm **€120-150**: it depends on where you buy (Amazon, or AliExpress with duties on single orders or without duties with bundle offers).
 
-- [CamUI](https://github.com/monkeymademe/CamUI) di James Mitchell - interfaccia web per la camera
-- [go2rtc](https://github.com/AlexxIT/go2rtc) di Alexey Khit - conversione e distribuzione dello stream
+## Credits
 
-## Licenza
+- [CamUI](https://github.com/monkeymademe/CamUI) by James Mitchell - web interface for the camera
+- [go2rtc](https://github.com/AlexxIT/go2rtc) by Alexey Khit - stream conversion and distribution
 
-- Codice e configurazioni: [MIT](LICENSE)
-- Modelli 3D, schemi, guide e immagini: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.it)
+## License
+
+- Code and configurations: [MIT](LICENSE)
+- 3D models, diagrams, guides and images: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 
 ---
 
-**Autore:** Massimiliano Sandrin - **[eMGi.it](https://www.emgi.it)** · Domande e commenti sotto gli articoli sul sito.
+**Author:** Massimiliano Sandrin - **[eMGi.it](https://www.emgi.it)** · Questions and comments below the articles on the website.

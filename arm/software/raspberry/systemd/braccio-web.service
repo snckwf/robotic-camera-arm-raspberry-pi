@@ -1,0 +1,16 @@
+[Unit]
+Description=Camera arm - web interface and control (port 8091)
+After=network-online.target camui.service go2rtc.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/braccio
+Environment=BRACCIO_DATI=/opt/braccio/dati
+ExecStart=/usr/bin/python3 /opt/braccio/braccio_web.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

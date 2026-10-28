@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-display_lcd.py - Display LCD 16x2 (opzionale) del braccio telecamera.
+display_lcd.py - Optional 16x2 LCD display for the camera arm.
 
-- Mostra la posizione dei giunti e la luce, letti da braccio_web.py (http://127.0.0.1:8091/api/stato).
-- Piccolo server HTTP sulla porta 8092 per scrivere messaggi sul display (usato da Claude, dal controller e dagli script):
-    GET /lcd?r1=Ciao&r2=Mondo&sec=10     scrive due righe per 10 secondi, poi torna lo stato
-    GET /lcd/stato                       cosa c'e' sul display adesso
-Hardware: LCD 16x2 con modulo I2C PCF8574 (indirizzo 0x27 o 0x3F) alimentato a 5 V,
-          collegato a GPIO2/GPIO3 attraverso il traslatore di livello BSS138.
-Dipendenze (Raspberry Pi OS):  sudo apt install python3-smbus2 ;  I2C attivo (sudo raspi-config)
+- Shows the joint positions and the light, read from braccio_web.py (http://127.0.0.1:8091/api/stato).
+- Small HTTP server on port 8092 to write messages on the display (used by Claude, the controller and scripts):
+    GET /lcd?r1=Hello&r2=World&sec=10    writes two lines for 10 seconds, then the status comes back
+    GET /lcd/stato                       what is on the display now
+Hardware: 16x2 LCD with PCF8574 I2C module (address 0x27 or 0x3F) powered at 5 V,
+          connected to GPIO2/GPIO3 through the BSS138 level shifter.
+Dependencies (Raspberry Pi OS):  sudo apt install python3-smbus2 ;  I2C enabled (sudo raspi-config)
 """
 import json
 import os
@@ -22,7 +22,7 @@ from urllib.parse import parse_qs, urlparse
 API = os.environ.get("BRACCIO_API", "http://127.0.0.1:8091")
 PORTA_HTTP = int(os.environ.get("DISPLAY_PORTA", "8092"))
 LCD_BUS = 1
-LCD_INDIRIZZI = (0x27, 0x3F)       # indirizzi tipici del modulo PCF8574
+LCD_INDIRIZZI = (0x27, 0x3F)       # typical addresses of the PCF8574 module
 
 
 def log(msg):
@@ -37,7 +37,7 @@ def api(percorso, timeout=3):
         return {"errore": str(e)}
 
 
-# ------------------------------------------------------------------ display LCD 16x2 su PCF8574
+# ------------------------------------------------------------------ 16x2 LCD display on PCF8574
 class Lcd:
     RS, EN, BL = 0x01, 0x04, 0x08
 
@@ -60,12 +60,12 @@ class Lcd:
                 except OSError:
                     continue
             if self.bus is None:
-                log("ATTENZIONE: display LCD non trovato su I2C (0x27 / 0x3F)")
+                log("WARNING: LCD display not found on I2C (0x27 / 0x3F)")
                 return
             self._init()
-            log(f"Display LCD su I2C 0x{self.ind:02X}")
+            log(f"LCD display on I2C 0x{self.ind:02X}")
         except Exception as e:  # noqa: BLE001
-            log(f"ATTENZIONE: I2C non disponibile ({e})")
+            log(f"WARNING: I2C not available ({e})")
             self.bus = None
 
     def _scrivi4(self, val):
@@ -84,11 +84,11 @@ class Lcd:
         for _ in range(3):
             self._scrivi4(0x30)
             time.sleep(0.005)
-        self._scrivi4(0x20)          # modo 4 bit
-        self._byte(0x28)             # 2 righe, caratteri 5x8
-        self._byte(0x0C)             # display acceso, cursore spento
-        self._byte(0x06)             # scrittura verso destra
-        self._byte(0x01)             # cancella
+        self._scrivi4(0x20)          # 4-bit mode
+        self._byte(0x28)             # 2 lines, 5x8 characters
+        self._byte(0x0C)             # display on, cursor off
+        self._byte(0x06)             # write to the right
+        self._byte(0x01)             # clear
         time.sleep(0.003)
 
     @staticmethod
@@ -109,7 +109,7 @@ class Lcd:
                         self._byte(ord(c), self.RS)
                 self.righe = [r1, r2]
             except OSError as e:
-                log(f"LCD: errore I2C ({e}), riprovo")
+                log(f"LCD: I2C error ({e}), retrying")
                 try:
                     self._init()
                 except OSError:
@@ -121,7 +121,7 @@ MESSAGGIO = {"r1": "", "r2": "", "fino": 0.0}
 
 
 def ciclo_display():
-    LCD.mostra("Braccio camera", "avvio...")
+    LCD.mostra("Camera arm", "starting...")
     while True:
         time.sleep(0.5)
         if time.time() < MESSAGGIO["fino"]:
@@ -129,11 +129,11 @@ def ciclo_display():
             continue
         s = api("/api/stato", timeout=2)
         if "giunti" not in s:
-            LCD.mostra("Braccio camera", "server spento")
+            LCD.mostra("Camera arm", "server off")
             continue
         g = s["giunti"]
         base = f"{s['base']:4.0f}" if s.get("base_azzerata") else "   ?"
-        r1 = f"B{base} S{g['spalla']:3.0f} G{g['gomito']:4.0f}"
+        r1 = f"B{base} S{g['spalla']:3.0f} E{g['gomito']:4.0f}"
         r2 = f"T{g['tilt']:4.0f} R{g['rotazione']:4.0f} L{s['luce']['livello']:3d}"
         LCD.mostra(r1, r2)
 
@@ -143,7 +143,7 @@ def messaggio(r1, r2, sec=3):
     LCD.mostra(r1, r2)
 
 
-# ------------------------------------------------------------------ server HTTP per i messaggi
+# ------------------------------------------------------------------ HTTP server for the messages
 class Gestore(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):
         pass
@@ -168,12 +168,12 @@ class Gestore(BaseHTTPRequestHandler):
             return self._json({"r1": LCD.righe[0], "r2": LCD.righe[1], "secondi": sec, "lcd": LCD.bus is not None})
         if u.path == "/lcd/stato":
             return self._json({"r1": LCD.righe[0], "r2": LCD.righe[1], "lcd": LCD.bus is not None})
-        return self._json({"errore": "percorso sconosciuto"}, 404)
+        return self._json({"errore": "unknown path"}, 404)
 
 
 def main():
     threading.Thread(target=ciclo_display, daemon=True).start()
-    log(f"Display pronto, messaggi su http://0.0.0.0:{PORTA_HTTP}/lcd")
+    log(f"Display ready, messages on http://0.0.0.0:{PORTA_HTTP}/lcd")
     ThreadingHTTPServer(("0.0.0.0", PORTA_HTTP), Gestore).serve_forever()
 
 

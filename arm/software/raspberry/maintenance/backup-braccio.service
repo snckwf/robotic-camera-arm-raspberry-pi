@@ -1,0 +1,7 @@
+[Unit]
+After=network-online.target
+Wants=network-online.target
+Description=Backup of the camera arm settings
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/backup-braccio.sh

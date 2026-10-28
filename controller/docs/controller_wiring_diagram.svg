@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="786" viewBox="0 0 1400 786" font-family="DejaVu Sans, Arial, sans-serif">
+<rect width="1400" height="800" fill="#ffffff"/>
+<text x="30" y="40" font-size="22" font-weight="bold" fill="#111" text-anchor="start">Camera arm — remote controller option</text>
+<text x="30" y="64" font-size="13" font-weight="normal" fill="#444" text-anchor="start">Arduino Nano with 2 KY-023 joysticks and 4 buttons, connected to the Raspberry Pi with the USB cable only. Red = 5 V, black = GND, colours = signals.</text>
+<rect x="560" y="110" width="240" height="278" rx="6" fill="#e6f4f1" stroke="#00695c" stroke-width="1.6"/>
+<text x="680.0" y="129" font-size="13" font-weight="bold" fill="#00695c" text-anchor="middle">Arduino Nano</text>
+<circle cx="560" cy="146" r="4.5" fill="#00695c"/>
+<text x="570" y="150" font-size="12" font-weight="normal" fill="#111" text-anchor="start">A0</text>
+<circle cx="560" cy="186" r="4.5" fill="#00695c"/>
+<text x="570" y="190" font-size="12" font-weight="normal" fill="#111" text-anchor="start">A1</text>
+<circle cx="560" cy="226" r="4.5" fill="#00695c"/>
+<text x="570" y="230" font-size="12" font-weight="normal" fill="#111" text-anchor="start">D2</text>
+<circle cx="560" cy="266" r="4.5" fill="#00695c"/>
+<text x="570" y="270" font-size="12" font-weight="normal" fill="#111" text-anchor="start">A2</text>
+<circle cx="560" cy="306" r="4.5" fill="#00695c"/>
+<text x="570" y="310" font-size="12" font-weight="normal" fill="#111" text-anchor="start">A3</text>
+<circle cx="560" cy="346" r="4.5" fill="#00695c"/>
+<text x="570" y="350" font-size="12" font-weight="normal" fill="#111" text-anchor="start">D3</text>
+<circle cx="800" cy="146" r="4.5" fill="#00695c"/>
+<text x="790" y="150" font-size="12" font-weight="normal" fill="#111" text-anchor="end">D4</text>
+<circle cx="800" cy="186" r="4.5" fill="#00695c"/>
+<text x="790" y="190" font-size="12" font-weight="normal" fill="#111" text-anchor="end">D5</text>
+<circle cx="800" cy="226" r="4.5" fill="#00695c"/>
+<text x="790" y="230" font-size="12" font-weight="normal" fill="#111" text-anchor="end">D6</text>
+<circle cx="800" cy="266" r="4.5" fill="#00695c"/>
+<text x="790" y="270" font-size="12" font-weight="normal" fill="#111" text-anchor="end">D7</text>
+<circle cx="800" cy="306" r="4.5" fill="#00695c"/>
+<text x="790" y="310" font-size="12" font-weight="normal" fill="#111" text-anchor="end">5V</text>
+<circle cx="800" cy="346" r="4.5" fill="#00695c"/>
+<text x="790" y="350" font-size="12" font-weight="normal" fill="#111" text-anchor="end">GND</text>
+<text x="680.0" y="378" font-size="10.5" font-weight="normal" fill="#666" text-anchor="middle">USB → Raspberry Pi</text>
+<rect x="80" y="110" width="220" height="198" rx="6" fill="#eef3fb" stroke="#1f3a6e" stroke-width="1.6"/>
+<text x="190.0" y="129" font-size="13" font-weight="bold" fill="#1f3a6e" text-anchor="middle">LEFT joystick (KY-023)</text>
+<circle cx="300" cy="146" r="4.5" fill="#1f3a6e"/>
+<text x="290" y="150" font-size="12" font-weight="normal" fill="#111" text-anchor="end">VRx</text>
+<circle cx="300" cy="178" r="4.5" fill="#1f3a6e"/>
+<text x="290" y="182" font-size="12" font-weight="normal" fill="#111" text-anchor="end">VRy</text>
+<circle cx="300" cy="210" r="4.5" fill="#1f3a6e"/>
+<text x="290" y="214" font-size="12" font-weight="normal" fill="#111" text-anchor="end">SW</text>
+<circle cx="300" cy="242" r="4.5" fill="#1f3a6e"/>
+<text x="290" y="246" font-size="12" font-weight="normal" fill="#111" text-anchor="end">+5V</text>
+<circle cx="300" cy="274" r="4.5" fill="#1f3a6e"/>
+<text x="290" y="278" font-size="12" font-weight="normal" fill="#111" text-anchor="end">GND</text>
+<text x="190.0" y="298" font-size="10.5" font-weight="normal" fill="#666" text-anchor="middle">X base · Y shoulder · click STOP/HOME</text>
+<rect x="80" y="338" width="220" height="198" rx="6" fill="#eef3fb" stroke="#1f3a6e" stroke-width="1.6"/>
+<text x="190.0" y="357" font-size="13" font-weight="bold" fill="#1f3a6e" text-anchor="middle">RIGHT joystick (KY-023)</text>
+<circle cx="300" cy="374" r="4.5" fill="#1f3a6e"/>
+<text x="290" y="378" font-size="12" font-weight="normal" fill="#111" text-anchor="end">VRx</text>
+<circle cx="300" cy="406" r="4.5" fill="#1f3a6e"/>
+<text x="290" y="410" font-size="12" font-weight="normal" fill="#111" text-anchor="end">VRy</text>
+<circle cx="300" cy="438" r="4.5" fill="#1f3a6e"/>
+<text x="290" y="442" font-size="12" font-weight="normal" fill="#111" text-anchor="end">SW</text>
+<circle cx="300" cy="470" r="4.5" fill="#1f3a6e"/>
+<text x="290" y="474" font-size="12" font-weight="normal" fill="#111" text-anchor="end">+5V</text>
+<circle cx="300" cy="502" r="4.5" fill="#1f3a6e"/>
+<text x="290" y="506" font-size="12" font-weight="normal" fill="#111" text-anchor="end">GND</text>
+<text x="190.0" y="526" font-size="10.5" font-weight="normal" fill="#666" text-anchor="middle">Y elbow · click light</text>
+<polyline points="300,146 400,146 400,146 560,146" fill="none" stroke="#1565c0" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="300" cy="146" r="5" fill="#1565c0"/>
+<circle cx="560" cy="146" r="5" fill="#1565c0"/>
+<polyline points="300,178 420,178 420,186 560,186" fill="none" stroke="#2e7d32" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="300" cy="178" r="5" fill="#2e7d32"/>
+<circle cx="560" cy="186" r="5" fill="#2e7d32"/>
+<polyline points="300,210 440,210 440,226 560,226" fill="none" stroke="#6a1b9a" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="300" cy="210" r="5" fill="#6a1b9a"/>
+<circle cx="560" cy="226" r="5" fill="#6a1b9a"/>
+<polyline points="300,374 470,374 470,266 560,266" fill="none" stroke="#ef6c00" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="300" cy="374" r="5" fill="#ef6c00"/>
+<circle cx="560" cy="266" r="5" fill="#ef6c00"/>
+<polyline points="300,406 490,406 490,306 560,306" fill="none" stroke="#00838f" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="300" cy="406" r="5" fill="#00838f"/>
+<circle cx="560" cy="306" r="5" fill="#00838f"/>
+<polyline points="300,438 510,438 510,346 560,346" fill="none" stroke="#ad1457" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="300" cy="438" r="5" fill="#ad1457"/>
+<circle cx="560" cy="346" r="5" fill="#ad1457"/>
+<polyline points="800,306 860,306 860,576 330,576" fill="none" stroke="#d22" stroke-width="3" stroke-linejoin="round"/>
+<polyline points="800,346 880,346 880,606 350,606" fill="none" stroke="#111" stroke-width="3" stroke-linejoin="round"/>
+<polyline points="300,242 330,242 330,576" fill="none" stroke="#d22" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="330" cy="242" r="5" fill="#d22"/>
+<polyline points="300,274 350,274 350,606" fill="none" stroke="#111" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="350" cy="274" r="5" fill="#111"/>
+<polyline points="300,470 330,470 330,576" fill="none" stroke="#d22" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="330" cy="470" r="5" fill="#d22"/>
+<polyline points="300,502 350,502 350,606" fill="none" stroke="#111" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="350" cy="502" r="5" fill="#111"/>
+<text x="600" y="570" font-size="11" font-weight="normal" fill="#d22" text-anchor="start">Nano 5V</text>
+<text x="600" y="600" font-size="11" font-weight="normal" fill="#111" text-anchor="start">Nano GND</text>
+<polyline points="800,146 1000,146" fill="none" stroke="#455a64" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="800" cy="146" r="5" fill="#455a64"/>
+<rect x="1000" y="134" width="24" height="24" rx="3" fill="#cfd8dc" stroke="#455a64"/><circle cx="1012" cy="146" r="6" fill="#37474f"/>
+<polyline points="1024,146 1080,146" fill="none" stroke="#111" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="1080" cy="146" r="5" fill="#111"/>
+<text x="1095" y="150" font-size="12" font-weight="normal" fill="#111" text-anchor="start">TILT UP  (D4 → button → GND)</text>
+<polyline points="800,186 1000,186" fill="none" stroke="#455a64" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="800" cy="186" r="5" fill="#455a64"/>
+<rect x="1000" y="174" width="24" height="24" rx="3" fill="#cfd8dc" stroke="#455a64"/><circle cx="1012" cy="186" r="6" fill="#37474f"/>
+<polyline points="1024,186 1080,186" fill="none" stroke="#111" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="1080" cy="186" r="5" fill="#111"/>
+<text x="1095" y="190" font-size="12" font-weight="normal" fill="#111" text-anchor="start">TILT DOWN  (D5 → button → GND)</text>
+<polyline points="800,226 1000,226" fill="none" stroke="#455a64" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="800" cy="226" r="5" fill="#455a64"/>
+<rect x="1000" y="214" width="24" height="24" rx="3" fill="#cfd8dc" stroke="#455a64"/><circle cx="1012" cy="226" r="6" fill="#37474f"/>
+<polyline points="1024,226 1080,226" fill="none" stroke="#111" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="1080" cy="226" r="5" fill="#111"/>
+<text x="1095" y="230" font-size="12" font-weight="normal" fill="#111" text-anchor="start">ROTATE LEFT  (D6 → button → GND)</text>
+<polyline points="800,266 1000,266" fill="none" stroke="#455a64" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="800" cy="266" r="5" fill="#455a64"/>
+<rect x="1000" y="254" width="24" height="24" rx="3" fill="#cfd8dc" stroke="#455a64"/><circle cx="1012" cy="266" r="6" fill="#37474f"/>
+<polyline points="1024,266 1080,266" fill="none" stroke="#111" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="1080" cy="266" r="5" fill="#111"/>
+<text x="1095" y="270" font-size="12" font-weight="normal" fill="#111" text-anchor="start">ROTATE RIGHT  (D7 → button → GND)</text>
+<polyline points="1080,146 1080,606 880,606" fill="none" stroke="#111" stroke-width="3" stroke-linejoin="round"/>
+<text x="1000" y="122" font-size="11" font-weight="normal" fill="#444" text-anchor="start">12×12 buttons (pins on opposite sides)</text>
+<rect x="560" y="408" width="240" height="44" rx="6" fill="#fff4e6" stroke="#c2410c" stroke-width="1.5"/>
+<text x="680" y="435" font-size="12" font-weight="bold" fill="#c2410c" text-anchor="middle">USB cable → Raspberry Pi USB port</text>
+<polyline points="680,388 680,408" fill="none" stroke="#c2410c" stroke-width="4" stroke-linejoin="round"/>
+<text x="50" y="656" font-size="12.5" font-weight="bold" fill="#111" text-anchor="start">Notes:</text>
+<text x="50" y="676" font-size="12.5" font-weight="normal" fill="#111" text-anchor="start">• No wires to the arm box: the USB cable carries the data and powers the Nano.</text>
+<text x="50" y="696" font-size="12.5" font-weight="normal" fill="#111" text-anchor="start">• Inputs D2-D7 with INPUT_PULLUP: each button closes to GND, no resistors.</text>
+<text x="50" y="716" font-size="12.5" font-weight="normal" fill="#111" text-anchor="start">• Sketch: arm_console.ino (115200 baud). Software on the Pi: controller_braccio.py (controller-braccio service).</text>
+<text x="50" y="736" font-size="12.5" font-weight="normal" fill="#111" text-anchor="start">• If a joint moves the wrong way, change its sign in SEGNO at the top of controller_braccio.py.</text>
+</svg>

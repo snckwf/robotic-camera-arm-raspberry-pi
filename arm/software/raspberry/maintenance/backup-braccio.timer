@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily backup of the arm settings (at first boot)
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=6h
+OnCalendar=daily
+Persistent=true
+[Install]
+WantedBy=timers.target

@@ -1,7 +1,0 @@
-[Unit]
-After=network-online.target
-Wants=network-online.target
-Description=Copia delle impostazioni del braccio telecamera
-[Service]
-Type=oneshot
-ExecStart=/usr/local/bin/backup-braccio.sh
