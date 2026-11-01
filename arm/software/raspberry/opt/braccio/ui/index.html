@@ -174,6 +174,15 @@
     </div>
 
     <div class="card">
+      <h2>System</h2>
+      <div class="riga">
+        <button id="btnRiavvia">Reboot Raspberry</button>
+        <button class="rec" id="btnSpegni">Shut down Raspberry</button>
+      </div>
+      <p class="nota" id="notaSistema">Press twice to confirm. After shutting down, wait until the Pi's green LED stops blinking, then you can remove power.</p>
+    </div>
+
+    <div class="card">
       <details id="tarDettagli">
         <summary>Calibration</summary>
         <p class="nota">Servo angle = zero + sign × (angle − reference). "Test" moves the servo to the given raw angle 0–180.</p>
@@ -329,14 +338,14 @@ $("btnHome").onclick = async () => {
 // ---------------- arrow controls (press and hold)
 // [name, label, [symbol, direction], [symbol, direction]] - if an arrow goes the wrong way, invert "sign" in Calibration
 const FRECCE = [
-  ["base", "Base", ["◀", -1], ["▶", 1]],
-  ["spalla", "Shoulder", ["▲", -1], ["▼", 1]],
+  ["base", "Base", ["◀", 1], ["▶", -1]],
+  ["spalla", "Shoulder", ["▲", 1], ["▼", -1]],
   ["gomito", "Elbow", ["▲", 1], ["▼", -1]],
   ["tilt", "Tilt", ["▲", 1], ["▼", -1]],
   ["rotazione", "Rotation", ["⟲", -1], ["⟳", 1]],
 ];
 const TASTI = {
-  ArrowLeft: ["base", -1], ArrowRight: ["base", 1], ArrowUp: ["spalla", -1], ArrowDown: ["spalla", 1],
+  ArrowLeft: ["base", 1], ArrowRight: ["base", -1], ArrowUp: ["spalla", 1], ArrowDown: ["spalla", -1],
   w: ["gomito", 1], s: ["gomito", -1], i: ["tilt", 1], k: ["tilt", -1], j: ["rotazione", -1], l: ["rotazione", 1],
 };
 const jogAttivi = {};
@@ -506,6 +515,30 @@ $("elencoVideo").onclick = async ev => {
 };
 aggiornaVideo();
 setInterval(aggiornaVideo, 2000);
+
+// ---------------- reboot / shutdown (double click to confirm)
+function confermaSistema(btn, azione, testo) {
+  let armato = null;
+  btn.onclick = async () => {
+    if (!armato) {
+      const orig = btn.textContent;
+      btn.textContent = "Confirm: " + testo + "?";
+      armato = setTimeout(() => { btn.textContent = orig; armato = null; }, 4000);
+      return;
+    }
+    clearTimeout(armato); armato = null;
+    try {
+      await api("/sistema?azione=" + azione);
+      $("notaSistema").textContent = azione === "riavvia"
+        ? "Rebooting: the page will be back in about a minute."
+        : "Shutting down: when the Pi's green LED is off you can remove power.";
+      btn.textContent = azione === "riavvia" ? "Rebooting..." : "Shutting down...";
+      btn.disabled = true;
+    } catch (e) { avviso(e.message); }
+  };
+}
+confermaSistema($("btnRiavvia"), "riavvia", "reboot");
+confermaSistema($("btnSpegni"), "spegni", "shut down");
 </script>
 </body>
 </html>

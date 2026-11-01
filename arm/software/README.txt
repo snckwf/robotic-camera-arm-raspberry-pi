@@ -90,6 +90,20 @@ TESTING
 -------
 Open http://PI_IP:8091 -> press "Home base" to zero the base with the Hall sensor, then the Calibration section:
 for each servo set zero, direction and limits with small movements. The STOP button (or Esc) stops everything.
+Tips from testing (in /opt/braccio/dati/config.json):
+  - Hall sensor 2-3 mm from the magnet, KY-024 trimmer set so the signal is clean (steady 1 away from
+    the magnet, steady 0 over it). At 1 cm the signal is unreliable and Home fails.
+    Home crosses the magnet and stops in the middle of the zone where it sees it.
+  - "angolo_hall" (base section) moves the zero. If the base is not straight after Home, turn it straight
+    and enter how many degrees the magnet is from the straight position: from then on 0 = base straight.
+  - Base limits (min/max) and "ricerca_max": always stay within 180 degrees of the magnet, for the cables.
+  - "rilascia_dopo": false for every servo: with the PCA9685 they don't jitter and keep holding (with true,
+    tilt and roll drop under the weight of the camera).
+  - Electronics box zone: with the base within +-25 degrees of the straight position, shoulder and elbow stay
+    at least at 70 and 60 degrees, and the arm lifts by itself before passing over the box (values in
+    braccio_web.py, function _zona: adapt them to your build).
+  - If a servo doesn't move but gets hot, the mechanics is blocking it (tight pivot, rubbing horn): release it
+    at once (Release button) and free the movement before trying again.
 
 SECURITY
 --------

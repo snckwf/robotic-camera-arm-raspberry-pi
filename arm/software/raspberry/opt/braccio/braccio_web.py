@@ -26,6 +26,7 @@ API (GET unless stated otherwise; names are kept in Italian as in the code):
   /api/prova?nome=spalla&gradi=90   "raw" servo angle 0..180 for calibration
 /api/registra?azione=avvia|ferma|stato&max=600   MP4 video recording start|stop|status (go2rtc stream)
 /api/video/elenco | /api/video/file?nome=&scarica=1 | /api/video/elimina?nome=   list / file (download) / delete
+/api/sistema?azione=riavvia|spegni   reboot or shut down the Raspberry
 """
 import json
 import mimetypes
@@ -58,10 +59,10 @@ CONFIG_DEFAULT = {
                       "imp_min": 500, "imp_max": 2500, "rilascia_dopo": False, "partenza": -60},
         "tilt":      {"tipo": "pca", "canale": 2, "gpio": 5, "min": -90, "max": 90,
                       "riferimento": 0, "zero_servo": 90, "segno": 1, "vel": 90,
-                      "imp_min": 500, "imp_max": 2400, "rilascia_dopo": True, "partenza": -45},
+                      "imp_min": 500, "imp_max": 2400, "rilascia_dopo": False, "partenza": -45},
         "rotazione": {"tipo": "pca", "canale": 3, "gpio": 6, "min": -90, "max": 90,
                       "riferimento": 0, "zero_servo": 90, "segno": 1, "vel": 90,
-                      "imp_min": 500, "imp_max": 2400, "rilascia_dopo": True, "partenza": 0},
+                      "imp_min": 500, "imp_max": 2400, "rilascia_dopo": False, "partenza": 0},
     },
     "base": {
         "pin": [17, 27, 22, 23],
@@ -110,11 +111,15 @@ def carica_json(percorso, default):
         return default
 
 
+_LOCK_JSON = threading.Lock()
+
+
 def salva_json(percorso, dati):
-    tmp = percorso + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(dati, f, indent=2, ensure_ascii=False)
-    os.replace(tmp, percorso)
+    with _LOCK_JSON:
+        tmp = f"{percorso}.{os.getpid()}.{threading.get_ident()}.tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(dati, f, indent=2, ensure_ascii=False)
+        os.replace(tmp, percorso)
 
 
 def unisci(base, extra):
@@ -377,9 +382,15 @@ class Base:
         self._bobine((0, 0, 0, 0))
 
     def hall(self):
+        """True only if the sensor sees the magnet in 5 reads in a row (filters out noise)."""
         if GPIO is None:
             return False
-        return lgpio.gpio_read(GPIO, self.cfg["gpio_hall"]) == self.cfg["hall_attivo"]
+        for i in range(5):
+            if lgpio.gpio_read(GPIO, self.cfg["gpio_hall"]) != self.cfg["hall_attivo"]:
+                return False
+            if i < 4:
+                time.sleep(0.0005)
+        return True
 
     def esegui(self):
         self.interrompi = False
@@ -388,26 +399,78 @@ class Base:
         self.obiettivo = self.passi
         self.spegni()
 
+    def _hall_maggioranza(self, letture=20, minimo=15):
+        if GPIO is None:
+            return False
+        att = 0
+        for _ in range(letture):
+            if lgpio.gpio_read(GPIO, self.cfg["gpio_hall"]) == self.cfg["hall_attivo"]:
+                att += 1
+            time.sleep(0.002)
+        return att >= minimo
+
     def home(self):
         self.interrompi = False
         if GPIO is None:
             self.passi = self.obiettivo = 0
             self.azzerata = True
             return True
-        limite = int(self.cfg["ricerca_max"] * self.passi_grado)
-        n = 0
-        while self.hall() and n < limite and not self.interrompi:
-            self._un_passo(1)
-            n += 1
-        n = 0
-        while not self.hall() and n < limite and not self.interrompi:
-            self._un_passo(-1)
-            n += 1
+        pg = self.passi_grado
+        lim = int(self.cfg["ricerca_max"] * pg)       # never beyond +-ricerca_max degrees from the estimated magnet
+        extra = int(40 * pg)                           # the magnet field is never wider than 40 degrees
+        self.obiettivo = self.passi                    # the base loop must not pull it back
+
+        def passo(verso):
+            if self.interrompi or not (-lim <= self.passi + verso <= lim):
+                return False
+            self._un_passo(verso)
+            self.obiettivo = self.passi
+            return True
+
+        def cerca(verso):
+            """Turn until the magnet is seen. True if found."""
+            while True:
+                if self.hall():
+                    return True
+                if not passo(verso):
+                    return False
+
+        def attraversa(verso):
+            """Move on until the magnet is lost for 15 steps in a row; return the last step with the magnet."""
+            ultimo, fuori, fatti = self.passi, 0, 0
+            while fuori < 15 and fatti < extra and passo(verso):
+                fatti += 1
+                if self.hall():
+                    ultimo, fuori = self.passi, 0
+                else:
+                    fuori += 1
+            return ultimo
+
+        if self._hall_maggioranza():
+            attraversa(-1)                             # already on the magnet: leave it on one side
+            for _ in range(5):
+                passo(-1)
+            primo = 1
+        else:
+            primo = -1 if self.passi > 0 else 1        # first towards the estimated zero
+        trovato, verso = False, primo
+        if cerca(primo):
+            trovato = True
+        elif cerca(-primo):                            # then the other way, always within +-lim
+            trovato, verso = True, -primo
+        if trovato:
+            bordo1 = self.passi
+            bordo2 = attraversa(verso)
+            centro = (bordo1 + bordo2) // 2
+            while self.passi != centro and passo(1 if centro > self.passi else -1):
+                pass
+            time.sleep(0.05)
         self.spegni()
-        if not self.hall():
-            log("HOME FAILED: Hall sensor never triggered")
+        if not trovato or not self._hall_maggioranza():
+            log(f"HOME FAILED: magnet not found (found={trovato})")
             self.obiettivo = self.passi
             return False
+        log(f"Base home: magnet width {abs(bordo2 - bordo1) / pg:.1f} degrees")
         self.passi = self.obiettivo = int(round(self.cfg["angolo_hall"] * self.passi_grado))
         self.azzerata = True
         log("Base home completed")
@@ -474,6 +537,47 @@ class Braccio:
         threading.Thread(target=self._ciclo_base, daemon=True).start()
         self.luce.imposta(0)
 
+    # ---- electronics box zone (base near zero: the arm must stay high)
+    def _zona(self):
+        return self.cfg.get("zona_scatola") or {"base": 25, "spalla": 70, "gomito": 60}
+
+    def _base_in_zona(self, verso_gradi=None):
+        """True if the base is in the zone or its movement crosses it."""
+        z = self._zona()["base"]
+        pg = self.base.passi_grado
+        a = self.base.passi / pg
+        t = (self.base.obiettivo if verso_gradi is None else verso_gradi * pg) / pg
+        return min(a, t) <= z and max(a, t) >= -z
+
+    def _min_zona(self, nome):
+        z = self._zona()
+        if nome in z and nome != "base" and self._base_in_zona():
+            return float(z[nome])
+        return None
+
+    def _alza_per_zona(self, timeout=15):
+        """Raise shoulder and elbow to the zone minimums and wait until they get there."""
+        z = self._zona()
+        with self.lock:
+            for n in ("spalla", "gomito"):
+                sv = self.servi.get(n)
+                if sv is None or n not in z:
+                    continue
+                if sv.attuale < z[n] - 0.5 or sv.obiettivo < z[n]:
+                    if not sv.attivo or sv.prova is not None:
+                        sv.tieni()
+                    sv.obiettivo = max(sv.obiettivo, float(z[n]))
+        fine = time.time() + timeout
+        while time.time() < fine:
+            with self.lock:
+                ok = all(self.servi[n].attuale >= z[n] - 0.5 for n in ("spalla", "gomito")
+                         if n in self.servi and n in z)
+            if ok:
+                return True
+            time.sleep(0.05)
+        log("WARNING: shoulder/elbow not raised in time for the box zone")
+        return False
+
     def _ciclo_servi(self):
         t0 = time.time()
         while True:
@@ -485,6 +589,16 @@ class Braccio:
                     if t > scad:
                         self._ferma_giunto(nome)
                 f = self.fattore
+                for nome, sv in self.servi.items():
+                    m = self._min_zona(nome)
+                    voluto = getattr(sv, "voluto", None)
+                    if m is not None and sv.attivo and sv.prova is None and sv.obiettivo < m:
+                        if voluto is None:
+                            sv.voluto = sv.obiettivo          # remember where it had to go
+                        sv.obiettivo = m
+                    elif m is None and voluto is not None:
+                        sv.obiettivo = sv.limita(voluto)       # base out of the zone: back to the requested position
+                        sv.voluto = None
                 mossi = [s.passo(dt, f) for s in self.servi.values()]
             if any(mossi):
                 self.in_moto.set()
@@ -497,9 +611,22 @@ class Braccio:
             time.sleep(0.02)
             if self.base.obiettivo != self.base.passi:
                 self.base_occupata.set()
-                self.base.esegui()
-                self._salva_stato()
-                self.base_occupata.clear()
+                try:
+                    if self._base_in_zona():
+                        z = self._zona()
+                        with self.lock:
+                            basso = any(self.servi[n].attuale < z[n] - 0.5 for n in ("spalla", "gomito")
+                                        if n in self.servi and n in z)
+                        if basso and not self._alza_per_zona():
+                            self.base.obiettivo = self.base.passi      # cannot pass: cancel the movement
+                            continue
+                    self.base.esegui()
+                    self._salva_stato()
+                except Exception as e:  # noqa: BLE001
+                    log(f"WARNING: base loop: {e!r}")
+                    self.base.spegni()
+                finally:
+                    self.base_occupata.clear()
 
     def _salva_stato(self):
         with self.lock:
@@ -539,6 +666,7 @@ class Braccio:
                     s = self.servi[n]
                     if not s.attivo or s.prova is not None:
                         s.tieni()
+                    s.voluto = None
                     s.obiettivo = s.limita(v)
 
     def attendi(self, timeout=30):
@@ -581,6 +709,7 @@ class Braccio:
                 s = self.servi[nome]
                 if not s.attivo or s.prova is not None:
                     s.tieni()
+                s.voluto = None
                 s.obiettivo = s.cfg["max"] if verso > 0 else s.cfg["min"]
             else:
                 raise KeyError(nome)
@@ -617,6 +746,8 @@ class Braccio:
             time.sleep(0.05)
         self.base_occupata.set()
         try:
+            if not self._alza_per_zona():
+                return False
             ok = self.base.home()
         finally:
             self.base_occupata.clear()
@@ -947,6 +1078,17 @@ class Gestore(BaseHTTPRequestHandler):
                 with b.lock:
                     s.grezzo(float(q["gradi"]))
                 return self._json({"nome": q["nome"], "gradi": float(q["gradi"])})
+            if p == "/sistema":
+                azione = q.get("azione", "")
+                if azione not in ("riavvia", "spegni"):
+                    raise ValueError("azione: riavvia or spegni")
+                if REG is not None:
+                    REG.ferma()
+                b.stop()
+                cmd = ["systemctl", "reboot" if azione == "riavvia" else "poweroff"]
+                threading.Timer(1.5, lambda: subprocess.Popen(cmd)).start()
+                log(f"SYSTEM: {azione} requested from the web page")
+                return self._json({"sistema": azione})
             if p == "/registra":
                 azione = q.get("azione", "stato")
                 if azione == "avvia":
