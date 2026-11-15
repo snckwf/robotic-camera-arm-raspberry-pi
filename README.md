@@ -30,6 +30,9 @@ Each folder has its own README with components, **wiring**, STL files, OpenSCAD 
 - **MCP server for Claude**: status, movements, light, photos, videos, positions, messages on the display; lockable joints
 - **go2rtc**: H.264 video with the Pi hardware encoder, RTSP for VLC and Home Assistant
 - **maintenance**: watchdog, daily backup (local + NAS), automatic security updates
+- **motion safety**: STOP that really stops everything, electronics box zone checked at every base step, released servos treated as "unknown position", a single owner of the base motor (no double HOME), validated calibration, configuration backup
+
+Last modified (arm software): 15/11/2026
 
 ## Getting started
 

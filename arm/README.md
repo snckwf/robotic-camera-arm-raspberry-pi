@@ -76,4 +76,12 @@ Notes:
 
 After installation open `http://PI-IP:8091`, do **Home base** and the **calibration** of each servo (zero, direction, limits) with small movements.
 
+Safety of the movements (`braccio_web.py`, last modified 15/11/2026):
+- **STOP** stops the base, the automatic lift for the box zone and HOME; shoulder and elbow stay where they are.
+- **Box zone** (base within ±25°: shoulder ≥ 70°, elbow ≥ 60°) checked at every base step: if the destination changes halfway, the base stops at the edge, lifts the arm and then goes on.
+- After **Release** (and at every service start) shoulder and elbow are treated as "unknown position": before entering the zone they are powered again and lifted.
+- **One owner of the base motor**: a second HOME is refused ("HOME already in progress"), base commands are refused during HOME.
+- **Calibration** (`/api/config`) checks every value; a wrong **light colour** is refused; a corrupted `config.json` is replaced by the last valid backup (`config.json.bak`), never by the factory values; `stato.json` is saved every 2 s while the base turns.
+- **Idle mode**: light off after 5 min, `casa` preset after 60 min, Raspberry shutdown after 120 min without commands (section `"riposo"` in `config.json`: `luce_min`, `casa_min`, `spegni_min`).
+
 ⚠️ SSH access with `sudo` gives Claude full control of the Raspberry: use a dedicated key, do not share it and remove it when not needed.

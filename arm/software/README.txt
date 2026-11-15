@@ -104,6 +104,28 @@ Tips from testing (in /opt/braccio/dati/config.json):
     braccio_web.py, function _zona: adapt them to your build).
   - If a servo doesn't move but gets hot, the mechanics is blocking it (tight pivot, rubbing horn): release it
     at once (Release button) and free the movement before trying again.
+  - To change the box zone add to config.json: "zona_scatola": {"base": 25, "spalla": 70, "gomito": 60}.
+
+SAFETY OF THE MOVEMENTS (last modified 15/11/2026)
+--------------------------------------------------
+  - STOP stops the base (also while it waits for the arm to lift), the lift for the box zone and HOME.
+  - The box zone is checked at every base step: a new destination given while the base turns cannot make it
+    cross the zone with the arm low.
+  - After "Release" (and after every restart of braccio-web) shoulder and elbow are "unknown position": before
+    the base enters the zone they are powered again (a small jerk to the last stored angle) and lifted.
+  - Only one owner of the base motor: a second HOME answers 409 "HOME already in progress"; during HOME base
+    commands are refused and the base is "not zeroed" until HOME succeeds.
+  - /api/config refuses wrong values (e.g. vel 0, min > max, segno other than 1/-1) without changing anything;
+    changing the base "segno" requires a new HOME. A wrong light colour is refused (400).
+  - config.json unreadable: it is renamed .corrotto_<date> and config.json.bak (written at every start and save)
+    or the newest config.json.bak_* is used; with no valid backup the service does not start.
+  - stato.json is saved every 2 s while the base turns (atomic write).
+  - /api/prova moves the servo within its limits and the box zone; /api/scatta never goes beyond the sensor.
+  - Idle mode: light off after 5 min, "casa" preset after 60 min, Raspberry shutdown after 120 min without
+    commands (not while recording). Change it in config.json: "riposo": {"luce_min": 5, "casa_min": 60,
+    "spegni_min": 120}.
+  Bench tests after an update: STOP while the arm lifts for the zone, change of destination while the base
+  turns, Release + base movement (hold the arm by hand), HOME pressed twice.
 
 SECURITY
 --------
